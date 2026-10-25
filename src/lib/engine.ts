@@ -53,7 +53,9 @@ export async function analyze(input: ShopInput, provider: QlooProvider): Promise
 
   return {
     dataSource: provider.source,
+    mode: "pipeline",
     location: input.location,
+    area: [...signals].sort((a, b) => strength(b) - strength(a)).slice(0, 8),
     recommendations: chosen.map((r) => ({
       ...r,
       reason: templateReason(r, input.location, provider.source === "qloo" ? "Qloo" : "demo data"),

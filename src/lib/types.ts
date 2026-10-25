@@ -41,6 +41,12 @@ export interface Recommendation {
 export interface AnalysisResult {
   dataSource: "qloo" | "mock";
   location: string;
+  /** "agent" when Claude drove the Qloo tools; "pipeline" for the deterministic fallback. */
+  mode?: "agent" | "pipeline";
+  /** Tool calls the agent made, in order. */
+  trace?: { tool: string; summary: string }[];
+  /** The area's strongest taste signals, for the area view. */
+  area: TasteSignal[];
   recommendations: Recommendation[];
 }
 

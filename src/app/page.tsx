@@ -113,6 +113,36 @@ export default function Home() {
                 Demo data: no Qloo key is configured, so these signals are invented placeholders.
               </p>
             )}
+            <details className="mt-3 text-sm">
+              <summary className="cursor-pointer text-zinc-600 dark:text-zinc-400">
+                {result.mode === "agent"
+                  ? `Agent trace (${result.trace?.length ?? 0} tool calls)`
+                  : "Ran as a fixed pipeline (no agent)"}
+              </summary>
+              <ol className="mt-2 list-decimal space-y-1 pl-5">
+                {(result.trace ?? []).map((t, i) => (
+                  <li key={i}>
+                    <code>{t.tool}</code>: {t.summary}
+                  </li>
+                ))}
+              </ol>
+            </details>
+            <h3 className="mt-4 text-sm font-semibold text-zinc-600 dark:text-zinc-400">
+              What {result.location} likes (top signals)
+            </h3>
+            <ul className="mt-2 flex flex-wrap gap-2">
+              {result.area.map((s) => (
+                <li
+                  key={s.id}
+                  className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
+                  title={`${s.type}, ${s.category}`}
+                >
+                  {s.name} · {Math.round(s.affinity * 100)}%
+                  {s.lift && s.lift > 1.05 ? ` · ${s.lift.toFixed(1)}x` : ""}
+                </li>
+              ))}
+            </ul>
+            <h3 className="mt-5 text-sm font-semibold text-zinc-600 dark:text-zinc-400">Ranked actions</h3>
             <ol className="mt-3 space-y-3">
               {result.recommendations.map((r, i) => (
                 <li key={`${r.kind}-${r.title}`} className="rounded border border-zinc-200 p-3 dark:border-zinc-800">
