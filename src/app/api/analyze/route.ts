@@ -1,14 +1,19 @@
 import { runAgent } from "@/lib/agent";
 import { analyze } from "@/lib/engine";
 import { getProvider } from "@/lib/qloo";
+import { limitResponse } from "@/lib/ratelimit";
 import { polishReasons } from "@/lib/reasons";
 import type { ShopInput } from "@/lib/types";
+import { validateShop } from "@/lib/validate";
 
 export async function POST(request: Request) {
-  const input = (await request.json()) as ShopInput;
-  if (!input?.location || !Array.isArray(input.range)) {
-    return Response.json({ error: "location and range are required" }, { status: 400 });
-  }
+  const limited = limitResponse(request, "analyze");
+  if (limited) return limited;
+
+  const input = (await request.json().catch(() => null)) as ShopInput | null;
+  const invalid = validateShop(input);
+  if (invalid || !input) return Response.json({ error: invalid ?? "Invalid request body." }, { status: 400 });
+
   const provider = getProvider();
   try {
     // Prefer the tool-calling agent; fall back to the deterministic pipeline if it

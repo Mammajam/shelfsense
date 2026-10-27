@@ -1,14 +1,21 @@
+import { limitResponse } from "@/lib/ratelimit";
 import { baselineAdvice } from "@/lib/reasons";
+import { validateBaseline } from "@/lib/validate";
 
 export async function POST(request: Request) {
-  const { name, location, categories } = (await request.json()) as {
-    name: string;
+  const limited = limitResponse(request, "baseline");
+  if (limited) return limited;
+
+  const body = (await request.json().catch(() => null)) as {
+    name?: string;
     location: string;
-    categories: string[];
-  };
-  if (!location) return Response.json({ error: "location is required" }, { status: 400 });
+    categories?: string[];
+  } | null;
+  const invalid = validateBaseline(body);
+  if (invalid || !body) return Response.json({ error: invalid ?? "Invalid request body." }, { status: 400 });
+
   try {
-    return Response.json({ advice: await baselineAdvice(name, location, categories ?? []) });
+    return Response.json({ advice: await baselineAdvice(body.name ?? "my shop", body.location, body.categories ?? []) });
   } catch (e) {
     return Response.json({ error: (e as Error).message }, { status: 502 });
   }
