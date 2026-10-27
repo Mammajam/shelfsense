@@ -137,8 +137,10 @@ export default function Home() {
                   className="rounded-full border border-zinc-300 px-3 py-1 text-xs dark:border-zinc-700"
                   title={`${s.type}, ${s.category}`}
                 >
-                  {s.name} · {Math.round(s.affinity * 100)}%
-                  {s.lift && s.lift > 1.05 ? ` · ${s.lift.toFixed(1)}x` : ""}
+                  {s.name}
+                  {s.rank && s.refRank
+                    ? ` · #${s.rank} here, ${s.refRank > 20 ? "not in reference top 20" : `#${s.refRank} in reference`}`
+                    : ` · ${Math.round(s.affinity * 100)}%${s.lift && s.lift > 1.05 ? ` · ${s.lift.toFixed(1)}x` : ""}`}
                 </li>
               ))}
             </ul>

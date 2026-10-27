@@ -3,12 +3,22 @@ import type { AnalysisResult, QlooProvider, Recommendation, ShopInput, TasteSign
 
 const strength = (s: TasteSignal) => s.affinity * (s.lift ?? 1);
 
+/** Length of the reference list; a reference rank beyond it means "not in the top results". */
+const TAKE_LIMIT = 20;
+
 const pct = (n: number) => `${Math.round(n * 100)}%`;
 
 /** Plain template reason, used when no LLM is available. Always cites the evidence. */
 function templateReason(r: Omit<Recommendation, "reason">, location: string, source: string): string {
   const e = r.evidence[0];
-  const lift = e?.lift && e.lift > 1.05 ? `, ${e.lift.toFixed(1)}x stronger than the reference area` : "";
+  const lift =
+    e?.rank && e.refRank
+      ? e.refRank > TAKE_LIMIT
+        ? `, ranked #${e.rank} here and outside the reference area's top ${TAKE_LIMIT}`
+        : `, ranked #${e.rank} here vs #${e.refRank} in the reference area`
+      : e?.lift && e.lift > 1.05
+        ? `, ${e.lift.toFixed(1)}x stronger than the reference area`
+        : "";
   if (r.kind === "add")
     return `${e.name} has ${pct(e.affinity)} affinity in ${location}${lift} (${source} ${e.call}), and nothing in your range covers it.`;
   if (r.kind === "partner")

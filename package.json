@@ -8,6 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "spike": "tsx --env-file=.env.local scripts/qloo-spike.ts",
+    "explore": "tsx --env-file=.env.local scripts/explore.ts",
     "test": "tsx --test tests/*.test.ts"
   },
   "dependencies": {

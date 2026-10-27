@@ -64,7 +64,7 @@ const SYSTEM =
   "Work in this order: get_area_taste, compare_to_reference (if a reference area is given), check_range_coverage, then submit_recommendations. " +
   "Rank by strength of evidence (affinity and lift), most important first; at most 6 'add', 3 'reduce' and 2 'partner'. " +
   "Every recommendation must come from tool results. Never invent numbers, brands or venues. " +
-  "Each reason is one or two plain sentences for a shop owner and cites the figures (affinity %, lift) from the tool results. " +
+  "Each reason is one or two plain sentences for a shop owner and cites figures from the tool results: prefer the area rank versus the reference rank when present (affinity is near 100% for every top result, so it does not distinguish them). " +
   "Only recommend 'reduce' if check_range_coverage lists unsupported items with sales data.";
 
 interface Session {
@@ -81,6 +81,8 @@ const compact = (s: TasteSignal) => ({
   type: s.type,
   category: s.category,
   affinity: Number(s.affinity.toFixed(2)),
+  ...(s.rank ? { rank: s.rank } : {}),
+  ...(s.refRank ? { reference_rank: s.refRank > 20 ? "outside top 20" : s.refRank } : {}),
   ...(s.lift ? { lift: Number(s.lift.toFixed(2)) } : {}),
 });
 
@@ -102,7 +104,7 @@ async function runTool(session: Session, name: string, args: Record<string, unkn
       const compared = await provider.compareAreas(input.location, reference, [...signals.values()]);
       compared.forEach((s) => signals.set(s.id, s));
       session.trace.push({ tool: name, summary: `compared ${input.location} with ${reference}` });
-      return compared.filter((s) => s.lift).map((s) => ({ id: s.id, lift: Number((s.lift ?? 1).toFixed(2)) }));
+      return compared.filter((s) => s.lift).map(compact);
     }
     case "check_range_coverage": {
       if (signals.size === 0) throw new Error("Call get_area_taste first.");

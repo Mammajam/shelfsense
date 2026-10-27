@@ -22,7 +22,11 @@ export interface TasteSignal {
   category: string;
   /** 0-1 affinity of the area's audience for this entity. */
   affinity: number;
-  /** How much stronger the affinity is here than in the reference area (1 = same). */
+  /** 1-based position within its category's results for this area (live Qloo only). */
+  rank?: number;
+  /** Position in the reference area's results; beyond the list length if it did not appear. */
+  refRank?: number;
+  /** How much stronger the signal is here than in the reference area (1 = same). */
   lift?: number;
   source: "qloo" | "mock";
   /** Which Qloo call produced it, so reasons can cite it. */
