@@ -27,12 +27,3 @@ export function validateShop(input: unknown): string | null {
   }
   return null;
 }
-
-export function validateBaseline(input: unknown): string | null {
-  const s = input as Record<string, unknown> | null;
-  if (!s || typeof s !== "object") return "Invalid request body.";
-  if (!isText(s.location)) return `location is required (max ${MAX_TEXT} characters).`;
-  if (s.categories !== undefined && (!Array.isArray(s.categories) || s.categories.length > MAX_CATEGORIES))
-    return `categories must be up to ${MAX_CATEGORIES} names.`;
-  return null;
-}

@@ -48,18 +48,3 @@ export async function polishReasons(result: AnalysisResult, shopName: string): P
     return result;
   }
 }
-
-/** Plain LLM answer with no Qloo data, for the side-by-side demo. */
-export async function baselineAdvice(shopName: string, location: string, categories: string[]): Promise<string> {
-  const prompt = `I run a small shop called ${shopName} in ${location} selling ${categories.join(", ")}. What should I stock more or less of? Keep it under 120 words.`;
-  if (!process.env.ANTHROPIC_API_KEY) {
-    return "Stock seasonal items, keep best sellers well supplied, review slow lines monthly and ask customers what they want. (Generic example; set ANTHROPIC_API_KEY for a live answer.)";
-  }
-  const client = new Anthropic();
-  const msg = await client.messages.create({
-    model: MODEL,
-    max_tokens: 400,
-    messages: [{ role: "user", content: prompt }],
-  });
-  return msg.content.map((b) => (b.type === "text" ? b.text : "")).join("");
-}

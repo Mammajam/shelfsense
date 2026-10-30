@@ -13,8 +13,6 @@ Built for the Qloo Agentic Hackathon.
 4. **Decide** – gaps are ranked by affinity x lift; reduce calls need the optional sales column.
 5. **Explain** – Claude rewrites each reason in plain language using only the attached evidence.
 
-A side panel shows the same shop answered by a plain LLM with no Qloo data, for contrast.
-
 ## Setup
 ```bash
 npm install
@@ -22,7 +20,7 @@ cp .env.example .env.local   # add QLOO_API_KEY and ANTHROPIC_API_KEY
 npm run dev
 ```
 Without `QLOO_API_KEY` the app runs on clearly labelled demo data. Set `QLOO_MODE=mock` to force that.
-Without `ANTHROPIC_API_KEY` reasons use plain templates and the baseline panel shows a generic example.
+Without `ANTHROPIC_API_KEY` reasons use plain templates.
 
 ## Scripts
 - `npm run spike -- "Brooklyn, NY" Nivea` – call Qloo and save raw responses to `fixtures/`

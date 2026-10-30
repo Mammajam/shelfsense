@@ -26,7 +26,6 @@ export default function Home() {
     csv: SAMPLE_CSV,
   });
   const [result, setResult] = useState<AnalysisResult | null>(null);
-  const [baseline, setBaseline] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -35,7 +34,6 @@ export default function Home() {
     setLoading(true);
     setError(null);
     setResult(null);
-    setBaseline(null);
     const cats = categories.split(",").map((c) => c.trim().toLowerCase()).filter(Boolean);
     const range = parseRangeCsv(csv);
     if (range.length === 0) {
@@ -44,17 +42,14 @@ export default function Home() {
       return;
     }
     try {
-      const post = (url: string, body: unknown) =>
-        fetch(url, { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(body) });
-      const [a, b] = await Promise.all([
-        post("/api/analyze", { name, location, categories: cats, range, referenceLocation: reference || undefined }),
-        post("/api/baseline", { name, location, categories: cats }),
-      ]);
-      const aj = await a.json();
-      if (!a.ok) throw new Error(aj.error ?? "Analysis failed");
-      setResult(aj);
-      const bj = await b.json();
-      setBaseline(b.ok ? bj.advice : `(baseline unavailable: ${bj.error})`);
+      const res = await fetch("/api/analyze", {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({ name, location, categories: cats, range, referenceLocation: reference || undefined }),
+      });
+      const json = await res.json();
+      if (!res.ok) throw new Error(json.error ?? "Analysis failed");
+      setResult(json);
     } catch (e) {
       setError((e as Error).message);
     } finally {
@@ -79,7 +74,7 @@ export default function Home() {
           </p>
         )}
         {loading && <ResultsSkeleton />}
-        {result && <Results result={result} baseline={baseline} />}
+        {result && <Results result={result} />}
       </main>
       <footer className="px-5 pb-8 text-center text-xs text-cream/40">
         ShelfSense · taste data by Qloo · recommendations are category and brand level, not SKU level

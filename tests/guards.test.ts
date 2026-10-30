@@ -1,7 +1,7 @@
 import assert from "node:assert/strict";
 import { test } from "node:test";
 import { rateLimit } from "../src/lib/ratelimit";
-import { validateBaseline, validateShop } from "../src/lib/validate";
+import { validateShop } from "../src/lib/validate";
 
 const win = { limit: 3, windowMs: 1000 };
 
@@ -40,9 +40,4 @@ test("validateShop accepts a normal payload and rejects oversized or malformed o
     /range/,
   );
   assert.match(validateShop({ ...shop, range: [{ category: "y" }] }) ?? "", /range item/);
-});
-
-test("validateBaseline requires a location", () => {
-  assert.equal(validateBaseline({ location: "Brooklyn", categories: ["beauty"] }), null);
-  assert.match(validateBaseline({}) ?? "", /location/);
 });
